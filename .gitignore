@@ -1,0 +1,10 @@
+/.collabignore
+/.vscode
+/LinuxPlayer_s.debug
+/Logs
+/Temp
+/UnityPlayer.so
+/UnityPlayer_s.debug
+/UserSettings
+/linux.x86_64
+/linux_Data

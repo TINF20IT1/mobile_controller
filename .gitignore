@@ -15,3 +15,6 @@ Packages
 UserSettings
 Logs
 Build
+Assembly-CSharp.csproj
+mobile_controller.sln
+ProjectSettings/SceneTemplateSettings.json

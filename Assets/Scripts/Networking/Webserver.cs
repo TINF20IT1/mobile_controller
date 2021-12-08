@@ -1,163 +1,181 @@
-using System;  
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;  
 using System.Net.Sockets;  
 using System.Text;  
 using System.Threading;  
 using UnityEngine;
   
-// State object for reading client data asynchronously  
-public class StateObject
+
+public class Webserver : MonoBehaviour
 {
-    // Size of receive buffer.  
-    public const int BufferSize = 1024;
+    private Socket _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-    // Receive buffer.  
-    public byte[] buffer = new byte[BufferSize];
+    private const int bufSize = 8 * 1024;
+    private State state = new State();
+    private EndPoint epFrom = new IPEndPoint(IPAddress.Any, 0);
+    private AsyncCallback recv = null;
 
-    // Received data string.
-    public StringBuilder sb = new StringBuilder();
-
-    // Client socket.
-    public Socket workSocket = null;
-}  
-  
-public class AsynchronousSocketListener
-{
-    // Thread signal.  
-    public static ManualResetEvent allDone = new ManualResetEvent(false);
-
-    public AsynchronousSocketListener()
+    public class State
     {
+        public byte[] buffer = new byte[bufSize];
+    }
+    public void Start()
+    {
+
+        Debug.Log(NetworkHandler.GetLocalIPAddress().ToString());
+        try
+        {                
+            _socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.ReuseAddress, true);
+            _socket.Bind(new IPEndPoint(IPAddress.Parse(NetworkHandler.GetLocalIPAddress().ToString()), 2000));
+            _socket.Listen(10);
+            _socket.BeginAccept(AcceptCallback, _socket);                
+        }
+        catch(Exception ex)
+        {
+            throw new Exception("listening error" + ex);
+        }
     }
 
-    public static void StartListening()
-    {
-        // Establish the local endpoint for the socket.  
-        // The DNS name of the computer  
-        // running the listener is "host.contoso.com".  
-        IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());  
-        IPAddress ipAddress = ipHostInfo.AddressList[0];  
-        IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 2000);  
-  
-        // Create a TCP/IP socket.  
-        Socket listener = new Socket(ipAddress.AddressFamily,  
-            SocketType.Stream, ProtocolType.Tcp );  
-  
-        // Bind the socket to the local endpoint and listen for incoming connections.  
-        try {  
-            listener.Bind(localEndPoint);  
-            listener.Listen(100);  
-  
-            while (true) {  
-                // Set the event to nonsignaled state.  
-                allDone.Reset();  
-  
-                // Start an asynchronous socket to listen for connections.  
-                Debug.Log("Waiting for a connection...");  
-                listener.BeginAccept(
-                    new AsyncCallback(AcceptCallback),  
-                    listener );  
-
-                // Wait until a connection is made before continuing.  
-                allDone.WaitOne();  
-            }  
-  
-        } catch (Exception e) {  
-            Debug.Log(e.ToString());  
-        }  
-  
-        Debug.Log("\nPress ENTER to continue...");  
-  
-    }
-
-    public static void AcceptCallback(IAsyncResult ar)
-    {
-        // Signal the main thread to continue.  
-        allDone.Set();  
-  
-        // Get the socket that handles the client request.  
-        Socket listener = (Socket) ar.AsyncState;  
-        Socket handler = listener.EndAccept(ar);  
-  
-        // Create the state object.  
-        StateObject state = new StateObject();  
-        state.workSocket = handler;  
-        handler.BeginReceive( state.buffer, 0, StateObject.BufferSize, 0,  
-            new AsyncCallback(ReadCallback), state);  
-    }
-
-    public static void ReadCallback(IAsyncResult ar)
-    {
-        String content = String.Empty;  
-  
-        // Retrieve the state object and the handler socket  
-        // from the asynchronous state object.  
-        StateObject state = (StateObject) ar.AsyncState;  
-        Socket handler = state.workSocket;  
-  
-        // Read data from the client socket.
-        int bytesRead = handler.EndReceive(ar);  
-  
-        if (bytesRead > 0) {  
-            // There  might be more data, so store the data received so far.  
-            state.sb.Append(Encoding.ASCII.GetString(  
-                state.buffer, 0, bytesRead));  
-  
-            // Check for end-of-file tag. If it is not there, read
-            // more data.  
-            content = state.sb.ToString();  
-            if (content.IndexOf("<EOF>") > -1) {  
-                // All the data has been read from the
-                // client. Display it on the console.  
-                Debug.Log("Read "+content.Length+" bytes from socket. \n Data : " + content );  
-                // Echo the data back to the client.  
-                Send(handler, content);  
-            } else {  
-                // Not all data received. Get more.  
-                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,  
-                new AsyncCallback(ReadCallback), state);  
-            }  
-        }  
-    }
-
-    private static void Send(Socket handler, String data)
-    {
-        // Convert the string data to byte data using ASCII encoding.  
-        byte[] byteData = Encoding.ASCII.GetBytes(data);  
-  
-        // Begin sending the data to the remote device.  
-        handler.BeginSend(byteData, 0, byteData.Length, 0,  
-            new AsyncCallback(SendCallback), handler);  
-    }
-
-    private static void SendCallback(IAsyncResult ar)
+    public void AcceptCallback(IAsyncResult ar)
     {
         try
         {
-            // Retrieve the socket from the state object.  
-            Socket handler = (Socket) ar.AsyncState;  
-  
-            // Complete sending the data to the remote device.  
-            int bytesSent = handler.EndSend(ar);  
-            Debug.Log("Sent {0} bytes to client." + bytesSent);  
-  
-            handler.Shutdown(SocketShutdown.Both);  
-            handler.Close();  
-  
+            Socket acceptedSocket = _socket.EndAccept(ar);               
+            ClientController.AddClient(acceptedSocket);
+            _socket.BeginAccept(AcceptCallback, _socket);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Debug.Log(e.ToString());  
-        }  
-    }
-    
+            throw new Exception("Base Accept error"+ ex);
+        }
     }
 
-public class Webserver :MonoBehaviour
-{
-    public void Start()
+    public class ReceivePacket
     {
-        AsynchronousSocketListener.StartListening();  
+        private byte[] _buffer;
+        private Socket _receiveSocket;
+        private int _clientId;
+
+        public ReceivePacket(Socket receiveSocket, int id)
+        {
+           _receiveSocket = receiveSocket;
+           _clientId = id;
+        }
+        public void StartReceiving()
+    {
+        try
+        {
+            _buffer = new byte[4];
+            _receiveSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, ReceiveCallback, null);
+        }
+        catch {}
     }
+
+    private void ReceiveCallback(IAsyncResult AR)
+    {
+        try
+        {
+            // if bytes are less than 1 takes place when a client disconnect from the server.
+            // So we run the Disconnect function on the current client
+
+            int len = _receiveSocket.EndReceive(AR);
+
+            if (len > 1)
+            {
+                // Convert the first 4 bytes (int 32) that we received and convert it to an Int32 (this is the size for the coming data).
+                _buffer = new byte[1024];  
+                // Next receive this data into the buffer with size that we did receive before
+                _receiveSocket.Receive(_buffer, _buffer.Length, SocketFlags.None); 
+                // When we received everything its onto you to convert it into the data that you've send.
+                // For example string, int etc... in this example I only use the implementation for sending and receiving a string.
+
+                // Convert the bytes to string and output it in a message box
+                string data = Encoding.Default.GetString(_buffer);
+
+                var fullPacket = new List<byte>();
+
+                Byte[] bytes = File.ReadAllBytes("/home/kurt/Dokumente/DHBW/SE/mobile_controller/android.apk");
+                String file = Convert.ToBase64String(bytes);
+
+
+                string header = "";
+
+                header += "HTTP/1.1 200 OK\r\n";
+                header += "Accept-Ranges: bytes\r\n";
+                header += "Content-Length: " + file.Length + "\r\n";
+                header += "Content-Type: application/vnd.android.package-archive\r\n";
+                header += "\r\n";
+
+
+                fullPacket.AddRange(Encoding.Default.GetBytes(header + file));
+
+                _receiveSocket.Send(fullPacket.ToArray());
+                // Now we have to start all over again with waiting for a data to come from the socket.
+                StartReceiving();
+            }
+            else
+            {
+                Disconnect();
+            }
+        }
+        catch
+        {
+            // if exeption is throw check if socket is connected because than you can startreive again else Dissconect
+            if (!_receiveSocket.Connected)
+            {
+                Disconnect();
+            }
+            else
+            {
+                StartReceiving();
+            }
+        }
+    }
+
+    private void Disconnect()
+    {
+        // Close connection
+        _receiveSocket.Disconnect(true);
+        // Next line only apply for the server side receive
+        ClientController.RemoveClient(_clientId);
+        // Next line only apply on the Client Side receive
+        //Here you want to run the method TryToConnect()
+    }
+    }
+
+    class Client
+    {
+        public Socket _socket { get; set; }
+        public ReceivePacket Receive { get; set; }
+        public int Id { get; set; }
+
+        public Client(Socket socket, int id)
+        {
+            Receive = new ReceivePacket(socket, id);
+            Receive.StartReceiving();
+            _socket = socket;
+            Id = id;
+        }
+    }
+
+     static class ClientController
+     {
+          public static List<Client> Clients = new List<Client>();
+
+          public static void AddClient(Socket socket)
+          {
+              Clients.Add(new Client(socket,Clients.Count));
+          }
+
+          public static void RemoveClient(int id)
+          {
+              Clients.RemoveAt(Clients.FindIndex(x => x.Id == id));
+          }
+      }
+
+
+
 }
 

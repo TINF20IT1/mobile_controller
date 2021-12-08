@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
      <Compile Include="Assets/Scripts/Visualization/SpeechBubbleHandler.cs" />
+     <Compile Include="Assets/Scripts/Networking/Webserver.cs" />
      <Compile Include="Assets/Scripts/NetworkMessages/ButtonDataframe.cs" />
      <Compile Include="Assets/Scripts/Networking/NetworkHandler.cs" />
      <Compile Include="Assets/Scripts/NetworkMessages/ButtonMessage.cs" />

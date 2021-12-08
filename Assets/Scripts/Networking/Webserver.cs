@@ -24,7 +24,7 @@ public class Webserver : MonoBehaviour
     public void Start()
     {
 
-        Debug.Log(NetworkHandler.GetLocalIPAddress().ToString());
+        Debug.Log("http://" + NetworkHandler.GetLocalIPAddress().ToString()+ ":2000/android.apk");
         try
         {                
             _socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.ReuseAddress, true);

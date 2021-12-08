@@ -14,6 +14,8 @@ public class NetworkHandler : MonoBehaviour
     public enum Network_Mode {Server, Client};
     UDPSocket mainsocket = new UDPSocket();
 
+    public static string username;
+
     private double lastsend = 0;
     #if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
         private Network_Mode GUI_Network_Mode = Network_Mode.Client;
@@ -27,8 +29,6 @@ public class NetworkHandler : MonoBehaviour
             Input.compass.enabled = true;
             Screen.sleepTimeout = SleepTimeout.NeverSleep;    
         #endif 
-
-
     }
 
     void OnGUI()
@@ -168,7 +168,10 @@ public class NetworkHandler : MonoBehaviour
 
         mainsocket.Client(NetworkMessage.serveradress, port);
 
-
+        //DEBUG stuff
+        string[] usernames = {"Peter", "Karl", "Klaus", "Gertrud", "Hanz", "Franz"};
+        SendUsername(usernames[UnityEngine.Random.Range(0,usernames.Length)]);
+        
         while(true)
         {
             try
@@ -190,6 +193,27 @@ public class NetworkHandler : MonoBehaviour
 
             lastsend = Time.realtimeSinceStartupAsDouble;
             yield return new WaitForSeconds(1f / 50f);
+        }
+    }
+
+
+    void SendUsername(string username)
+    {
+        try
+        {
+            mainsocket.Send(4,UsernameMessage.generate(username).serialize());
+        }
+        catch (Exception e) 
+        {
+            Debug.Log(e.ToString());
+            try
+            {
+                mainsocket.Client(NetworkMessage.serveradress, port);
+            }
+            catch (Exception e_) 
+            {
+                Debug.Log(e_.ToString());
+            }
         }
     }
 }

@@ -25,9 +25,14 @@ public class MobileInputVisualizer : MonoBehaviour
                     go.name = entry.Key;
                     pos++;
                 }
+                GameObject g = GameObject.Find(entry.Key);
 
+                if(g.transform.Find("USERNAME").GetComponent<TextMesh>().text == "")
+                {
+                    g.transform.Find("USERNAME").GetComponent<TextMesh>().text = PlayerMessageManager.getUsername(entry.Key);
+                }
                 latenz = PlayerMessageManager.getLatenz(entry.Key);
-                GameObject.Find(entry.Key).GetComponent<Transform>().localEulerAngles = PlayerMessageManager.getRotation(entry.Key);
+                g.GetComponent<Transform>().localEulerAngles = PlayerMessageManager.getRotation(entry.Key);
             }
         }
         if(PlayerMessageManager.buttonList != null)

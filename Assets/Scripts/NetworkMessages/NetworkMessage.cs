@@ -13,6 +13,7 @@ public class NetworkMessage
         {1, OrientationMessage.process},
         {2, getServer},
         {3, ButtonMessage.process},
+        {4, UsernameMessage.process},
     };
 
     public static void displayMessage(byte[] data, string ip)

@@ -5,9 +5,17 @@ using System.Linq;
 
 public static class PlayerMessageManager
 {
+    public static Dictionary<string, string> usernames = new Dictionary<string, string>();
     public static Dictionary<string, Queue<OrientationDataframe>> rotationList = new Dictionary<string, Queue<OrientationDataframe>>();
     public static Dictionary<string, List<ButtonDataframe>> buttonList = new Dictionary<string, List<ButtonDataframe>>();
     public static int buffsize = 5;
+
+
+    public static void handleNewUsername(UsernameMessage od)
+    {
+        usernames[od.id] = od.name;
+    }
+
     public static void handleNewDataframe(OrientationDataframe od)
     {
         if(!rotationList.ContainsKey(od.orientationMessage.id))
@@ -137,5 +145,17 @@ public static class PlayerMessageManager
     public static string[] getUsers()
     {
         return rotationList.Keys.ToArray();
+    }
+
+    public static Dictionary<string, string> getUsernames()
+    {
+        return usernames;
+    }
+
+    public static string getUsername(string id)
+    {
+        if(usernames.ContainsKey(id))
+            return usernames[id];
+        return "";
     }
 }

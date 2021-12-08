@@ -56,6 +56,8 @@ public class UDPSocket
     {            
         _socket.BeginReceiveFrom(state.buffer, 0, bufSize, SocketFlags.None, ref epFrom, recv = (ar) =>
         {
+            //Debug.Log("TEst");
+
             State so = (State)ar.AsyncState;
             int bytes = _socket.EndReceiveFrom(ar, ref epFrom);
             _socket.BeginReceiveFrom(so.buffer, 0, bufSize, SocketFlags.None, ref epFrom, recv, so);

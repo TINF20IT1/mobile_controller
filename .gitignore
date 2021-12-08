@@ -9,3 +9,8 @@
 /linux.x86_64
 /linux_Data
 **/.idea/**
+Library
+obj
+Packages
+UserSettings
+Logs

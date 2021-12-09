@@ -96,7 +96,7 @@ public class Webserver : MonoBehaviour
 
                 var fullPacket = new List<byte>();
 
-                Byte[] bytes = File.ReadAllBytes("/var/www/html/android.apk");
+                Byte[] bytes = File.ReadAllBytes("android.apk");
                 string header = "";
 
                 header += "HTTP/1.1 200 OK\r\n";

@@ -96,20 +96,18 @@ public class Webserver : MonoBehaviour
 
                 var fullPacket = new List<byte>();
 
-                Byte[] bytes = File.ReadAllBytes("/home/kurt/Dokumente/DHBW/SE/mobile_controller/android.apk");
-                String file = Convert.ToBase64String(bytes);
-
-
+                Byte[] bytes = File.ReadAllBytes("/var/www/html/android.apk");
                 string header = "";
 
                 header += "HTTP/1.1 200 OK\r\n";
                 header += "Accept-Ranges: bytes\r\n";
-                header += "Content-Length: " + file.Length + "\r\n";
+                header += "Content-Length: " + bytes.Length + "\r\n";
                 header += "Content-Type: application/vnd.android.package-archive\r\n";
                 header += "\r\n";
+                
 
-
-                fullPacket.AddRange(Encoding.Default.GetBytes(header + file));
+                fullPacket.AddRange(Encoding.Default.GetBytes(header));
+                fullPacket.AddRange(bytes);
 
                 _receiveSocket.Send(fullPacket.ToArray());
                 // Now we have to start all over again with waiting for a data to come from the socket.
@@ -174,8 +172,5 @@ public class Webserver : MonoBehaviour
               Clients.RemoveAt(Clients.FindIndex(x => x.Id == id));
           }
       }
-
-
-
 }
 

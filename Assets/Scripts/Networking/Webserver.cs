@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;  
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;  
 using System.Text;  
 using System.Threading;  
@@ -105,7 +106,6 @@ public class Webserver : MonoBehaviour
                 header += "Content-Type: application/vnd.android.package-archive\r\n";
                 header += "\r\n";
                 
-
                 fullPacket.AddRange(Encoding.Default.GetBytes(header));
                 fullPacket.AddRange(bytes);
 

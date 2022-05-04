@@ -169,7 +169,7 @@ public class NetworkHandler : MonoBehaviour
         mainsocket.Client(NetworkMessage.serveradress, port);
 
         //DEBUG stuff
-        string[] usernames = {"Peter", "Karl", "Klaus", "Gertrud", "Hanz", "Franz"};
+        string[] usernames = {"Peter", "Karl", "Klaus", "Gertrud", "Hanz", "Franz", "Jörn"};
         SendUsername(usernames[UnityEngine.Random.Range(0,usernames.Length)]);
         
         while(true)

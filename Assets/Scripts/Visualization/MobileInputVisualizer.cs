@@ -14,6 +14,7 @@ public class MobileInputVisualizer : MonoBehaviour
     public List<GameObject> activeButtons = new List<GameObject>();
     void Update()
     {
+        
         if(PlayerMessageManager.rotationList != null)
         {
             foreach (KeyValuePair<string, Queue<OrientationDataframe>> entry in PlayerMessageManager.rotationList)
@@ -35,6 +36,7 @@ public class MobileInputVisualizer : MonoBehaviour
                 g.GetComponent<Transform>().localEulerAngles = PlayerMessageManager.getRotation(entry.Key);
             }
         }
+
         if(PlayerMessageManager.buttonList != null)
         {
             foreach (KeyValuePair<string, List<ButtonDataframe>> entry in PlayerMessageManager.buttonList)

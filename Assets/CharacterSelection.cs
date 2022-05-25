@@ -48,6 +48,9 @@ public class CharacterSelection : MonoBehaviour
             PlayerPrefs.SetFloat("USER_COLOR_R", selectedColor.r);
             PlayerPrefs.SetFloat("USER_COLOR_G", selectedColor.g);
             PlayerPrefs.SetFloat("USER_COLOR_B", selectedColor.b);
+
+
+            
         });
         
     }

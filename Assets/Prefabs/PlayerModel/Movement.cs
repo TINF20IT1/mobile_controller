@@ -21,5 +21,8 @@ public class Movement : MonoBehaviour
 
         if(PlayerMessageManager.buttonTriggered(uniqueDeviceID,"D"))
             transform.Translate(Vector2.down);
+
+        //if(PlayerMessageManager.buttonTriggered(uniqueDeviceID,"I"))
+            //use Item
     }
 }

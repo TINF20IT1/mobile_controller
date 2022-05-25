@@ -19,24 +19,34 @@ public static class PlayerMessageManager
     public static void handleNewDataframe(OrientationDataframe od)
     {
         if(!rotationList.ContainsKey(od.orientationMessage.id))
+        {
             rotationList[od.orientationMessage.id] = new Queue<OrientationDataframe>();
+        }
 
         rotationList[od.orientationMessage.id].Enqueue(od);
         if(rotationList[od.orientationMessage.id].Count > buffsize)
-        rotationList[od.orientationMessage.id].Dequeue();
+        {
+            rotationList[od.orientationMessage.id].Dequeue();
+        }
     }
 
     public static void handleNewButtonframe(ButtonDataframe bd)
     {
         if(!buttonList.ContainsKey(bd.buttonMessage.id))
+        {
             buttonList[bd.buttonMessage.id] = new List<ButtonDataframe>();
-
+        }
 
         if(!bd.buttonMessage.trigger && !bd.buttonMessage.pressed)
         {
             for(int i = 0; i < buttonList[bd.buttonMessage.id].Count; i++)
             {
-                if(!buttonList[bd.buttonMessage.id][i].buttonMessage.trigger && buttonList[bd.buttonMessage.id][i].buttonMessage.key == bd.buttonMessage.key)
+                // Current ButtonMessage of button with id "id" was not tiggered
+                bool bool1 = !buttonList[bd.buttonMessage.id][i].buttonMessage.trigger;
+
+                // Current ButtonMessage of button with id "id" has 
+                bool bool2 = buttonList[bd.buttonMessage.id][i].buttonMessage.key == bd.buttonMessage.key;
+                if(bool1 && bool2)
                 {
                     buttonList[bd.buttonMessage.id].RemoveAt(i);
                 }
@@ -107,11 +117,15 @@ public static class PlayerMessageManager
     
     public static Vector3 closestVector3(Vector3 input, Vector3 prev)
     {
-        return new Vector3(getClosestValue(input.x,prev.x, Vector3.right),getClosestValue(input.y,prev.y, Vector3.up),getClosestValue(input.z,prev.z, Vector3.forward));
+        return new Vector3( getClosestValue(input.x,prev.x, Vector3.right),
+                            getClosestValue(input.y,prev.y, Vector3.up),
+                            getClosestValue(input.z,prev.z, Vector3.forward));
     }
     public static float getClosestValue(float input, float prev, Vector3 axis)
     {
-        float[] distances = {Mathf.Abs(input - prev), Mathf.Abs(input + 360 - prev),Mathf.Abs(input - 360 - prev)};
+        float[] distances = {   Mathf.Abs(input - prev),
+                                Mathf.Abs(input + 360 - prev),
+                                Mathf.Abs(input - 360 - prev)};
 
         float absmin = distances.Min();
         if(absmin == distances[1]) turns += axis * 360;
@@ -128,8 +142,7 @@ public static class PlayerMessageManager
         foreach(OrientationDataframe od in rotationList[userID].ToArray())
         {
             float latenz = (od.recievetime - od.orientationMessage.sendtime);
-            if(latenz < 0) continue;
-            count++;
+            if(latenz > 0) count++;
             sum += latenz;
         }
 
@@ -154,8 +167,7 @@ public static class PlayerMessageManager
 
     public static string getUsername(string id)
     {
-        if(usernames.ContainsKey(id))
-            return usernames[id];
+        if(usernames.ContainsKey(id)) return usernames[id];
         return "";
     }
 }

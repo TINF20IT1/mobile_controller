@@ -12,7 +12,7 @@ public class ControllerScript : MonoBehaviour
     public bool started = false;
     UDPSocket mainsocket = new UDPSocket();
 
-    public Button l,  r, u;
+    public Button l, r, u, d;
 
     public void Start()
     {
@@ -23,6 +23,8 @@ public class ControllerScript : MonoBehaviour
             mainsocket.Send(0, ButtonMessage.generate("R").serialize());});
         u.onClick.AddListener(() => {if(started) 
             mainsocket.Send(0, ButtonMessage.generate("U").serialize());});
+        d.onClick.AddListener(() => {if(started) 
+            mainsocket.Send(0, ButtonMessage.generate("D").serialize());});
     }
 
     public static System.Net.IPAddress GetLocalIPAddress()

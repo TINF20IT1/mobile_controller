@@ -15,6 +15,7 @@ public class MobileInputVisualizer : MonoBehaviour
     void Update()
     {
         
+        /*
         if(PlayerMessageManager.rotationList != null)
         {
             foreach (KeyValuePair<string, Queue<OrientationDataframe>> entry in PlayerMessageManager.rotationList)
@@ -69,6 +70,8 @@ public class MobileInputVisualizer : MonoBehaviour
                 GameObject.Find(go.transform.parent.name).GetComponent<SpeechBubbleHandler>().hide(go);
             }
         }
+
+        */
 
     }
 

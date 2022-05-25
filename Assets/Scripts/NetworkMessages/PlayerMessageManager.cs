@@ -5,87 +5,54 @@ using System.Linq;
 
 public static class PlayerMessageManager
 {
-    public static Dictionary<string, string> usernames = new Dictionary<string, string>();
-    public static Dictionary<string, Queue<OrientationDataframe>> rotationList = new Dictionary<string, Queue<OrientationDataframe>>();
-    public static Dictionary<string, List<ButtonDataframe>> buttonList = new Dictionary<string, List<ButtonDataframe>>();
-    public static int buffsize = 5;
-
+    public static Dictionary<string, PlayerInformation> players = new Dictionary<string, PlayerInformation>();
 
     public static void handleNewUsername(UsernameMessage od)
     {
-        usernames[od.id] = od.name;
+        if(!players.ContainsKey(od.id))
+            players[od.id] = new PlayerInformation(od.id);
+
+        players[od.id].name = od.name;
     }
 
     public static void handleNewDataframe(OrientationDataframe od)
     {
-        if(!rotationList.ContainsKey(od.orientationMessage.id))
-        {
-            rotationList[od.orientationMessage.id] = new Queue<OrientationDataframe>();
-        }
+        if(!players.ContainsKey(od.orientationMessage.id))
+            players[od.orientationMessage.id] = new PlayerInformation(od.orientationMessage.id);
 
-        rotationList[od.orientationMessage.id].Enqueue(od);
-        if(rotationList[od.orientationMessage.id].Count > buffsize)
-        {
-            rotationList[od.orientationMessage.id].Dequeue();
-        }
+        players[od.orientationMessage.id].addNewOrientation(od);
     }
 
     public static void handleNewButtonframe(ButtonDataframe bd)
     {
-        if(!buttonList.ContainsKey(bd.buttonMessage.id))
-        {
-            buttonList[bd.buttonMessage.id] = new List<ButtonDataframe>();
-        }
 
-        if(!bd.buttonMessage.trigger && !bd.buttonMessage.pressed)
-        {
-            // Remove every entry from buttonList that is not triggered and its key matches the key of bd (kind of)
-            for(int i = 0; i < buttonList[bd.buttonMessage.id].Count; i++)
-            {
-                // Current ButtonMessage of button with id "id" was not tiggered
-                bool bool1 = !buttonList[bd.buttonMessage.id][i].buttonMessage.trigger;
+        if(!players.ContainsKey(bd.buttonMessage.id))
+            players[bd.buttonMessage.id] = new PlayerInformation(bd.buttonMessage.id);
 
-                // Current ButtonMessage of button with id "id" has the same key as the ButtonMessage of ButtonDataframe bd
-                bool bool2 = buttonList[bd.buttonMessage.id][i].buttonMessage.key == bd.buttonMessage.key;
-                if(bool1 && bool2)
-                {
-                    buttonList[bd.buttonMessage.id].RemoveAt(i);
-                }
-            }
-            return;
-        }
-        buttonList[bd.buttonMessage.id].Add(bd);
+        players[bd.buttonMessage.id].handleButton(bd);
     }
 
     public static bool buttonTriggered(string user, string key)
     {
-        if(!buttonList.ContainsKey(user)) return false;
+        if(!players.ContainsKey(user)) return false;
 
-        for(int i = 0; i < buttonList[user].Count; i++)
-        {
-            if(buttonList[user][i].buttonMessage.trigger && buttonList[user][i].buttonMessage.key == key)
-            {
-                buttonList[user].RemoveAt(i);
-                return true;
-            }
-        }
-        return false;
+        return players[user].buttonTriggered(key);
+        
     }
 
     public static bool buttonHeld(string user, string key)
     {
-        if(!buttonList.ContainsKey(user)) return false;
+        if(!players.ContainsKey(user)) return false;
 
-        for(int i = 0; i < buttonList[user].Count; i++)
-        {
-            if(!buttonList[user][i].buttonMessage.trigger && buttonList[user][i].buttonMessage.key == key)
-            {
-                return true;
-            }
-        }
-        return false;
+        return players[user].buttonHeld(key);
     }
 
+
+    public static Vector3 getRotation(string userID)
+    {
+        return Vector3.zero;
+    }
+    /*
     public static Vector3 getRotation(string userID)
     {
         float x_sin_sum = 0;
@@ -117,15 +84,11 @@ public static class PlayerMessageManager
     
     public static Vector3 closestVector3(Vector3 input, Vector3 prev)
     {
-        return new Vector3( getClosestValue(input.x,prev.x, Vector3.right),
-                            getClosestValue(input.y,prev.y, Vector3.up),
-                            getClosestValue(input.z,prev.z, Vector3.forward));
+        return new Vector3(getClosestValue(input.x,prev.x, Vector3.right),getClosestValue(input.y,prev.y, Vector3.up),getClosestValue(input.z,prev.z, Vector3.forward));
     }
     public static float getClosestValue(float input, float prev, Vector3 axis)
     {
-        float[] distances = {   Mathf.Abs(input - prev),
-                                Mathf.Abs(input + 360 - prev),
-                                Mathf.Abs(input - 360 - prev)};
+        float[] distances = {Mathf.Abs(input - prev), Mathf.Abs(input + 360 - prev),Mathf.Abs(input - 360 - prev)};
 
         float absmin = distances.Min();
         if(absmin == distances[1]) turns += axis * 360;
@@ -133,6 +96,8 @@ public static class PlayerMessageManager
 
         return input + Vector3.Dot(axis, turns);
     }
+
+    
 
     public static float getLatenz(string userID)
     {
@@ -142,12 +107,15 @@ public static class PlayerMessageManager
         foreach(OrientationDataframe od in rotationList[userID].ToArray())
         {
             float latenz = (od.recievetime - od.orientationMessage.sendtime);
-            if(latenz > 0) count++;
+            if(latenz < 0) continue;
+            count++;
             sum += latenz;
         }
 
         return sum / count;
     }
+
+    
 
 
     public static OrientationDataframe[] getData(string userID)
@@ -155,19 +123,28 @@ public static class PlayerMessageManager
         return rotationList[userID].ToArray();
     }
 
+    */
+
     public static string[] getUsers()
     {
-        return rotationList.Keys.ToArray();
+        return players.Keys.ToArray();
     }
 
-    public static Dictionary<string, string> getUsernames()
+    public static string[] getUsernames()
     {
-        return usernames;
+
+        List<string> usernames = new List<string>();
+
+        foreach(PlayerInformation p in players.Values)
+            usernames.Add(p.name);
+
+        return usernames.ToArray();
     }
 
     public static string getUsername(string id)
     {
-        if(usernames.ContainsKey(id)) return usernames[id];
+        if(players.ContainsKey(id))
+            return players[id].name;
         return "";
     }
 }

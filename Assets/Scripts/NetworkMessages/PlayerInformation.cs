@@ -28,8 +28,17 @@ public class PlayerInformation
             orientations.Dequeue();
     }
 
+    public void handleSelection(PlayerSelection ps)
+    {
+        character = ps.character;
+        name = ps.name;
+        color = new Color((float)(ps.r / 255),(float)(ps.g / 255),(float)(ps.b / 255),1);
+    }
+
     public void handleButton(ButtonDataframe bd)
     {
+
+        Debug.Log("recieved " + bd.buttonMessage.key);
         if(bd.buttonMessage.trigger)
         {
             buttons.Add(bd);

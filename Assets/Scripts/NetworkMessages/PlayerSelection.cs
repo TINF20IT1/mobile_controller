@@ -15,6 +15,10 @@ public class PlayerSelection : NetworkMessage
 
     public char character;
     
+    public PlayerSelection()
+    {
+        id = SystemInfo.deviceUniqueIdentifier;
+    }
     public byte[] serialize()
     {
         List<byte> bytes = new List<byte>();

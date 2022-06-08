@@ -7,7 +7,7 @@ public static class PlayerMessageManager
 {
     public static Dictionary<string, PlayerInformation> players = new Dictionary<string, PlayerInformation>();
 
-    public static void handleNewUsername(UsernameMessage od)
+    public static void handleNewPlayerSelection(PlayerSelection od)
     {
         if(!players.ContainsKey(od.id))
             players[od.id] = new PlayerInformation(od.id);
@@ -15,6 +15,12 @@ public static class PlayerMessageManager
         Debug.Log(od.id);
 
         players[od.id].name = od.name;
+        players[od.id].color = new Color(
+            (float)(od.r) / (255),
+            (float)(od.g) / (255),
+            (float)(od.b) / (255));
+
+        players[od.id].character = od.character;
     }
 
     public static void handleNewDataframe(OrientationDataframe od)

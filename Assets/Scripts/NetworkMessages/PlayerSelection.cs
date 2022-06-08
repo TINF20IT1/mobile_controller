@@ -64,7 +64,7 @@ public class PlayerSelection : NetworkMessage
 
     public static void process(byte[] data, string ip)
     {
-        UsernameMessage um = UsernameMessage.deserialize(data);
-        PlayerMessageManager.handleNewUsername(um);
+        PlayerSelection ps = PlayerSelection.deserialize(data);
+        PlayerMessageManager.handleNewPlayerSelection(ps);
     }
 }

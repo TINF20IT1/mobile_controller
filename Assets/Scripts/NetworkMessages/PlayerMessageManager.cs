@@ -12,6 +12,8 @@ public static class PlayerMessageManager
         if(!players.ContainsKey(od.id))
             players[od.id] = new PlayerInformation(od.id);
 
+        Debug.Log(od.id);
+
         players[od.id].name = od.name;
     }
 

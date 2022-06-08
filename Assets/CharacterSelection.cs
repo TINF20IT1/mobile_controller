@@ -11,25 +11,34 @@ public class CharacterSelection : MonoBehaviour
     public GameObject[] character;
     public InputField playerName_IF;
 
-    public Color selectedColor;
 
     public Button prevCharacter, nextCharacter;
     public Button start;
-    public string playerName;
 
-    public int selectedCharacter = 0;
+    [SerializeField]
+
+
+    public PlayerSelection ps = new PlayerSelection();
+
+    
+
+
     void Start()
     {
 
-        playerName_IF.text = PlayerPrefs.GetString("USER_NAME");
-        selectedCharacter = PlayerPrefs.GetInt("USER_CHARACTER");
-        selectedColor = new Color(PlayerPrefs.GetFloat("USER_COLOR_R"),PlayerPrefs.GetFloat("USER_COLOR_G"),PlayerPrefs.GetFloat("USER_COLOR_B"));
+        ps.name= PlayerPrefs.GetString("USER_NAME");
+        playerName_IF.text = ps.name;
 
+        ps.character = (byte)PlayerPrefs.GetInt("USER_CHARACTER");
+        ps.r = (byte)PlayerPrefs.GetInt("USER_COLOR_R");
+        ps.g = (byte)PlayerPrefs.GetInt("USER_COLOR_G");
+        ps.b = (byte)PlayerPrefs.GetInt("USER_COLOR_B");
+        
 
         //selectedColor = colorSelection.transform.GetChild(0).GetChild(0).GetComponent<Image>().color;
 
-        prevCharacter.GetComponent<Button>().onClick.AddListener(() => {selectedCharacter = (character.Length + selectedCharacter-1) % character.Length;});
-        nextCharacter.GetComponent<Button>().onClick.AddListener(() => {selectedCharacter = (selectedCharacter+1) % character.Length;});
+        prevCharacter.GetComponent<Button>().onClick.AddListener(() => {ps.character = (byte)(((int)character.Length + (int)ps.character-1) % character.Length);});
+        nextCharacter.GetComponent<Button>().onClick.AddListener(() => {ps.character = (byte)(((int)ps.character+1) % character.Length);});
 
         for(int row = 0; row < colorSelection.transform.childCount; row++)
         {
@@ -39,29 +48,35 @@ public class CharacterSelection : MonoBehaviour
                 Color c = button.GetComponent<Image>().color;
 
                 button.name = ((int)(255 * c.r)).ToString("X2") + ((int)(255 * c.g)).ToString("X2") + ((int)(255 * c.b)).ToString("X2");
-                button.GetComponent<Button>().onClick.AddListener(() => {selectedColor = c;});
+                button.GetComponent<Button>().onClick.AddListener(() => 
+                {
+                    Debug.Log(c);
+
+                    ps.r = (byte)(c.r * 255);
+                    ps.g = (byte)(c.g * 255);
+                    ps.b = (byte)(c.b * 255);
+
+                });
             }
         }
 
-        playerName_IF.onValueChanged.AddListener((name)=> {playerName = name;});
+        playerName_IF.onValueChanged.AddListener((name)=> 
+        {
+            ps.name = name; 
+            PlayerPrefs.SetString("USER_NAME", ps.name);
+
+        });
+
         start.onClick.AddListener(() => 
         {
-            PlayerPrefs.SetString("USER_NAME", playerName);
-            PlayerPrefs.SetInt("USER_CHARACTER", selectedCharacter);
-            PlayerPrefs.SetFloat("USER_COLOR_R", selectedColor.r);
-            PlayerPrefs.SetFloat("USER_COLOR_G", selectedColor.g);
-            PlayerPrefs.SetFloat("USER_COLOR_B", selectedColor.b);
-
-            PlayerSelection ps = new PlayerSelection();
+            PlayerPrefs.SetString("USER_NAME", ps.name);
+            PlayerPrefs.SetInt("USER_CHARACTER", ps.character);
+            PlayerPrefs.SetInt("USER_COLOR_R", ps.r);
+            PlayerPrefs.SetInt("USER_COLOR_G", ps.g);
+            PlayerPrefs.SetInt("USER_COLOR_B", ps.b);
 
             ps.id = SystemInfo.deviceUniqueIdentifier;
 
-            ps.character = (char)selectedCharacter;
-            ps.name = playerName;
-            ps.r = (char)(selectedColor.r * 255);
-            ps.g = (char)(selectedColor.g * 255);
-            ps.b = (char)(selectedColor.b * 255);
-            
             if(controller.SendUserSelection(ps))
                 canvas.SetActive(false);
         });
@@ -69,13 +84,10 @@ public class CharacterSelection : MonoBehaviour
     }
     void Update()
     {
-
         for(int i = 0 ; i < character.Length; i++)
         {
-            character[i].gameObject.SetActive(i == selectedCharacter);
-            character[i].GetComponent<Image>().color = selectedColor;
+            character[i].gameObject.SetActive(i == ps.character);
+            character[i].GetComponent<Image>().color = new Color((float)ps.r/ 255f,(float)ps.g/ 255f,(float)ps.b/ 255f);
         }
-
-        
     }
 }

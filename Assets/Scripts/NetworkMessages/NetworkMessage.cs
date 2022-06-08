@@ -6,6 +6,15 @@ public class NetworkMessage
     //public char messageID;
     //public string message;
 
+    public enum MessageDestination : byte
+    {
+        Debug = 0,
+        Rotation = 1,
+        DebugIP = 2,
+        Button = 3,
+        Selection = 5
+    }
+
     public static string serveradress = null;
     public static Dictionary<byte, Action<byte[],string>> functions = new Dictionary<byte, Action<byte[],string>>()
     {
@@ -14,6 +23,7 @@ public class NetworkMessage
         {2, getServer},
         {3, ButtonMessage.process},
         {4, UsernameMessage.process},
+        {5, PlayerSelection.process},
     };
 
     public static void displayMessage(byte[] data, string ip)

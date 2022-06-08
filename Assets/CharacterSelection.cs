@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class CharacterSelection : MonoBehaviour
 {
+    public ControllerScript controller;
+    public GameObject canvas;
     public GameObject colorSelection;
     public GameObject[] character;
     public InputField playerName_IF;
@@ -49,8 +51,17 @@ public class CharacterSelection : MonoBehaviour
             PlayerPrefs.SetFloat("USER_COLOR_G", selectedColor.g);
             PlayerPrefs.SetFloat("USER_COLOR_B", selectedColor.b);
 
+            PlayerSelection ps = new PlayerSelection();
 
+            ps.character = (char)selectedCharacter;
+            ps.name = playerName;
+            ps.r = (char)(selectedColor.r * 255);
+            ps.g = (char)(selectedColor.g * 255);
+            ps.b = (char)(selectedColor.b * 255);
             
+            controller.SendUserSelection(ps);
+            
+            canvas.SetActive(false);
         });
         
     }

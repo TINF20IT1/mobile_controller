@@ -12,19 +12,46 @@ public class ControllerScript : MonoBehaviour
     public bool started = false;
     UDPSocket mainsocket = new UDPSocket();
 
-    public Button l, r, u, d;
+    public Button l, r, u, d, i;
+
+    public void SendUserSelection(PlayerSelection ps)
+    {
+        if(started) 
+            mainsocket.Send(5, ps.serialize());
+    }
+
+    public void SendDown(string button)
+    {
+
+    }
+
+    public void SendUpMessage(string button)
+    {
+        Debug.Log(button + " UP");
+        if(!started) return;
+
+        mainsocket.Send(
+            (byte)NetworkMessage.MessageDestination.Button, 
+            ButtonMessage.generate(button, false,false).serialize());
+    }
+
+    public void SendDownMessage(string button)
+    {
+        Debug.Log(button + " Down");
+        if(!started) return;
+        
+        mainsocket.Send(
+            (byte)NetworkMessage.MessageDestination.Button, 
+            ButtonMessage.generate(button,false,true).serialize());
+    }
 
     public void Start()
     {
         StartCoroutine(connect());
-        l.onClick.AddListener(() => {if(started) 
-            mainsocket.Send(0, ButtonMessage.generate("L").serialize());});
-        r.onClick.AddListener(() => {if(started) 
-            mainsocket.Send(0, ButtonMessage.generate("R").serialize());});
-        u.onClick.AddListener(() => {if(started) 
-            mainsocket.Send(0, ButtonMessage.generate("U").serialize());});
-        d.onClick.AddListener(() => {if(started) 
-            mainsocket.Send(0, ButtonMessage.generate("D").serialize());});
+
+        i.onClick.AddListener(() => {if(started) 
+            mainsocket.Send((byte)NetworkMessage.MessageDestination.Button, 
+            ButtonMessage.generate("I").serialize());});
     }
     
     private IEnumerator connect()

@@ -26,7 +26,7 @@ public class CharacterSelection : MonoBehaviour
         selectedColor = new Color(PlayerPrefs.GetFloat("USER_COLOR_R"),PlayerPrefs.GetFloat("USER_COLOR_G"),PlayerPrefs.GetFloat("USER_COLOR_B"));
 
 
-        selectedColor = colorSelection.transform.GetChild(0).GetChild(0).GetComponent<Image>().color;
+        //selectedColor = colorSelection.transform.GetChild(0).GetChild(0).GetComponent<Image>().color;
 
         prevCharacter.GetComponent<Button>().onClick.AddListener(() => {selectedCharacter = (character.Length + selectedCharacter-1) % character.Length;});
         nextCharacter.GetComponent<Button>().onClick.AddListener(() => {selectedCharacter = (selectedCharacter+1) % character.Length;});

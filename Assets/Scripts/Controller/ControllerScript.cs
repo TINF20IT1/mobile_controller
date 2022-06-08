@@ -14,10 +14,12 @@ public class ControllerScript : MonoBehaviour
 
     public Button l, r, u, d, i;
 
-    public void SendUserSelection(PlayerSelection ps)
+    public bool SendUserSelection(PlayerSelection ps)
     {
-        if(started) 
-            mainsocket.Send(5, ps.serialize());
+        if(!started) return false;
+
+        mainsocket.Send(5, ps.serialize());
+        return true;
     }
 
     public void SendDown(string button)

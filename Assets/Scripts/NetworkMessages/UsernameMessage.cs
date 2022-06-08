@@ -60,7 +60,8 @@ public class UsernameMessage : NetworkMessage
 
     public static void process(byte[] data, string ip)
     {
-        UsernameMessage um = UsernameMessage.deserialize(data);
-        PlayerMessageManager.handleNewUsername(um);
+        Debug.Log("Username processing obsolete");
+        //UsernameMessage um = UsernameMessage.deserialize(data);
+        //PlayerMessageManager.handleNewPlayerSelection(um);
     }
 }

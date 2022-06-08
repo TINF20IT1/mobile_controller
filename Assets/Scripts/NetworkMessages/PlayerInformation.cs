@@ -45,25 +45,32 @@ public class PlayerInformation
             return;
         }
 
+        Debug.Log("no trigger" + bd.buttonMessage.key);
 
+
+        bool alreadyPressed = false;
         for(int i = 0; i < buttons.Count; i++)
         {
             if(buttons[i].buttonMessage.trigger) continue;
 
-            bool alreadyPressed = false;
             if(buttons[i].buttonMessage.key == bd.buttonMessage.key)
             {
                 alreadyPressed = true;
                 if(!bd.buttonMessage.pressed)
-                    buttons.RemoveAt(i);
-                return;
-            }
+                {
+                    Debug.Log("removed" + bd.buttonMessage.key);
 
-            if(!alreadyPressed && bd.buttonMessage.pressed)
-            {
-                buttons.Add(bd);
-                return;
-            }
+                    buttons.RemoveAt(i);
+                    return;
+                }
+            }   
+        }
+        
+        if(!alreadyPressed && bd.buttonMessage.pressed)
+        {
+            Debug.Log("added Button " + bd.buttonMessage.key);
+            buttons.Add(bd);
+            return;
         }
     }
 

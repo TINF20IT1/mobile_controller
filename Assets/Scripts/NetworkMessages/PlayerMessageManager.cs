@@ -12,7 +12,6 @@ public static class PlayerMessageManager
         if(!players.ContainsKey(od.id))
             players[od.id] = new PlayerInformation(od.id);
 
-        Debug.Log(od.id);
 
         players[od.id].name = od.name;
         players[od.id].color = new Color(
@@ -21,6 +20,15 @@ public static class PlayerMessageManager
             (float)(od.b) / (255));
 
         players[od.id].character = od.character;
+
+        Debug.Log(od.id);
+        Debug.Log(od.name);
+        Debug.Log(players[od.id].color);
+        Debug.Log(players[od.id].character);
+
+        Debug.Log(getUsernames().Length);
+
+
     }
 
     public static void handleNewDataframe(OrientationDataframe od)
@@ -133,6 +141,17 @@ public static class PlayerMessageManager
 
     */
 
+    public static PlayerInformation[] getPlayers()
+    {
+        List<PlayerInformation> p2 = new List<PlayerInformation>();
+
+        foreach(PlayerInformation p in players.Values)
+        {
+            p2.Add(p);
+        }
+
+        return p2.ToArray();
+    }
     public static string[] getUsers()
     {
         return players.Keys.ToArray();
@@ -144,8 +163,9 @@ public static class PlayerMessageManager
         List<string> usernames = new List<string>();
 
         foreach(PlayerInformation p in players.Values)
+        {
             usernames.Add(p.name);
-
+        }
         return usernames.ToArray();
     }
 

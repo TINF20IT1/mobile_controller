@@ -44,7 +44,8 @@ public class CharacterSelection : MonoBehaviour
         }
 
         playerName_IF.onValueChanged.AddListener((name)=> {playerName = name;});
-        start.onClick.AddListener(() => {
+        start.onClick.AddListener(() => 
+        {
             PlayerPrefs.SetString("USER_NAME", playerName);
             PlayerPrefs.SetInt("USER_CHARACTER", selectedCharacter);
             PlayerPrefs.SetFloat("USER_COLOR_R", selectedColor.r);
@@ -53,15 +54,16 @@ public class CharacterSelection : MonoBehaviour
 
             PlayerSelection ps = new PlayerSelection();
 
+            ps.id = SystemInfo.deviceUniqueIdentifier;
+
             ps.character = (char)selectedCharacter;
             ps.name = playerName;
             ps.r = (char)(selectedColor.r * 255);
             ps.g = (char)(selectedColor.g * 255);
             ps.b = (char)(selectedColor.b * 255);
             
-            controller.SendUserSelection(ps);
-            
-            canvas.SetActive(false);
+            if(controller.SendUserSelection(ps))
+                canvas.SetActive(false);
         });
         
     }

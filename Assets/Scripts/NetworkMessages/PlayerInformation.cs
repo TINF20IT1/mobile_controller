@@ -39,15 +39,11 @@ public class PlayerInformation
     public void handleButton(ButtonDataframe bd)
     {
 
-        Debug.Log("recieved " + bd.buttonMessage.key);
         if(bd.buttonMessage.trigger)
         {
             buttons.Add(bd);
             return;
         }
-
-        Debug.Log("no trigger" + bd.buttonMessage.key);
-
 
         bool alreadyPressed = false;
         for(int i = 0; i < buttons.Count; i++)
@@ -59,8 +55,6 @@ public class PlayerInformation
                 alreadyPressed = true;
                 if(!bd.buttonMessage.pressed)
                 {
-                    Debug.Log("removed" + bd.buttonMessage.key);
-
                     buttons.RemoveAt(i);
                     return;
                 }
@@ -69,7 +63,6 @@ public class PlayerInformation
 
         if(!alreadyPressed && bd.buttonMessage.pressed)
         {
-            Debug.Log("added Button " + bd.buttonMessage.key);
             buttons.Add(bd);
             return;
         }

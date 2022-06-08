@@ -58,6 +58,13 @@ public class PlayerSelection : NetworkMessage
         stringdata = new ArraySegment<byte>(data,pos,stringlength).ToArray();
         um.name = System.Text.Encoding.ASCII.GetString(stringdata);
 
+        pos += stringlength;
+
+        um.character = data[pos++];
+        um.r = data[pos++];
+        um.g = data[pos++];
+        um.b = data[pos++];
+
         return um;
 
     }

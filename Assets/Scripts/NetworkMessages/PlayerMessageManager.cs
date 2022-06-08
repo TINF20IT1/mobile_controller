@@ -13,11 +13,16 @@ public static class PlayerMessageManager
             players[od.id] = new PlayerInformation(od.id);
             players[od.id].name = od.name;
             players[od.id].color = new Color(
-                (float)(od.r) / (255),
-                (float)(od.g) / (255),
-                (float)(od.b) / (255));
+                (float)(od.r) / (255f),
+                (float)(od.g) / (255f),
+                (float)(od.b) / (255f));
+            players[od.id].character = (int)od.character;
 
-            players[od.id].character = od.character;
+            Debug.Log(players[od.id].name);
+            Debug.Log(od.r);
+            Debug.Log(od.g);
+            Debug.Log(od.b);
+            Debug.Log(od.character);
         }
     }
 

@@ -5,15 +5,16 @@ using System.Text;
 using System;
 using System.Linq;
 
+[System.Serializable]
 public class PlayerSelection : NetworkMessage
 {
 
     public string id;
     public string name;
 
-    public char r,g,b;
+    public byte r,g,b;
 
-    public char character;
+    public byte character;
     
     public PlayerSelection(){}
     public byte[] serialize()
@@ -39,32 +40,23 @@ public class PlayerSelection : NetworkMessage
 
     public static PlayerSelection deserialize(byte[] data)
     {
-        Debug.Log("1");
         PlayerSelection um = new PlayerSelection();
-        Debug.Log("2-");
 
         int pos = 0;
 
         int stringlength = data[pos];
         pos++;
-                Debug.Log("2");
 
 
         byte[] stringdata = new ArraySegment<byte>(data,pos,stringlength).ToArray();
         um.id = System.Text.Encoding.ASCII.GetString(stringdata);
         pos += stringlength;
 
-        Debug.Log("3");
-
         stringlength = data[pos];
         pos++;
-                Debug.Log("4");
-
 
         stringdata = new ArraySegment<byte>(data,pos,stringlength).ToArray();
         um.name = System.Text.Encoding.ASCII.GetString(stringdata);
-
-        Debug.Log("5");
 
         return um;
 

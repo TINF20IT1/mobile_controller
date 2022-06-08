@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class PlayerInformation
 {
     public string userid;
@@ -65,7 +66,7 @@ public class PlayerInformation
                 }
             }   
         }
-        
+
         if(!alreadyPressed && bd.buttonMessage.pressed)
         {
             Debug.Log("added Button " + bd.buttonMessage.key);

@@ -29,6 +29,8 @@ public class NetworkHandler : MonoBehaviour
             Input.compass.enabled = true;
             Screen.sleepTimeout = SleepTimeout.NeverSleep;    
         #endif 
+
+        StartServer();
     }
 
     void OnGUI()
@@ -49,11 +51,7 @@ public class NetworkHandler : MonoBehaviour
         
             if(!started && GUILayout.Button("Start Server"))
             {
-                started = true;
-                
-                mainsocket.Server(GetLocalIPAddress().ToString(), port);
-                StartCoroutine(AnounceServer());
-
+                StartServer();
             }
         }
 
@@ -89,6 +87,13 @@ public class NetworkHandler : MonoBehaviour
 
     }
 
+    public void StartServer()
+    {
+        started = true;
+        
+        mainsocket.Server(GetLocalIPAddress().ToString(), port);
+        StartCoroutine(AnounceServer());
+    }
 
     public static System.Net.IPAddress GetLocalIPAddress()
     {
@@ -169,7 +174,7 @@ public class NetworkHandler : MonoBehaviour
         mainsocket.Client(NetworkMessage.serveradress, port);
 
         //DEBUG stuff
-        string[] usernames = {"Peter", "Karl", "Klaus", "Gertrud", "Hanz", "Franz"};
+        string[] usernames = {"Peter", "Karl", "Klaus", "Gertrud", "Hanz", "Franz", "Jörn"};
         SendUsername(usernames[UnityEngine.Random.Range(0,usernames.Length)]);
         
         while(true)
